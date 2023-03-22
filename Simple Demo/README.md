@@ -44,27 +44,14 @@ Installation defaults to schema default tablespace
   DROP USER imdemo CASCADE;
   ````
 
-## ORDERS_TAB fully loaded
-
-````
-SQL> select segment_name, bytes/1024/1024 from user_segments where segment_name = 'ORDERS_TAB';
-
-
-SEGMENT_NAME            Size (MB)
--------------------- ------------
-ORDERS_TAB                  1,280
-````
-
-
 ## ORDERS_TAB populate in the IM column store, default compression
 
 ````
-                                                                                                 BYTES NOT
-SEGMENT_NAME         PARTITION_NAME  EXTERNAL            BYTES POP STATUS       INMEMORY_SIZE    POPULATED
--------------------- --------------- -------- ---------------- ------------- ---------------- ------------
-ORDERS_TAB                           FALSE       1,538,031,616 COMPLETED          483,393,536            0
+                                                                                             BYTES NOT
+OWNER                SEGMENT_NAME                    BYTES POP STATUS       INMEMORY_SIZE    POPULATED
+-------------------- -------------------- ---------------- ------------- ---------------- ------------
+SSB                  ORDERS_TAB              1,470,988,288 COMPLETED          411,041,792            0
 
-SQL> 
 ````
 
 ## Sample queries
@@ -73,5 +60,4 @@ Two different queries are run with and without inmemory enabled along with execu
 
 ## Sample Output
 
-See the demo.txt file for a sample output from running the dbim_simple_demo.sql script.
-
+See the simple-demo-output.txt file for a sample output from running the dbim_simple_demo.sql script.

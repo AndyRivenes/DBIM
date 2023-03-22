@@ -1,0 +1,373 @@
+SQL> @DBIM-simple-demo.sql
+**********************************************
+Database In-Memory Simple Demo - Version 1.0
+**********************************************
+**********************************************
+Create objects
+**********************************************
+
+Table dropped.
+
+
+Table created.
+
+
+View created.
+
+
+Sequence dropped.
+
+
+Sequence created.
+
+**********************************************
+Run Data Load
+**********************************************
+
+PL/SQL procedure successfully completed.
+
+**********************************************
+Generate Stats and Populate ORDERS_TAB table
+**********************************************
+SQL> EXEC DBMS_STATS.GATHER_TABLE_STATS(USER,'ORDERS_TAB');
+
+PL/SQL procedure successfully completed.
+
+SQL> --
+SQL> ALTER TABLE orders_tab INMEMORY PRIORITY HIGH;
+
+Table altered.
+
+SQL> --
+SQL> EXEC DBMS_INMEMORY.POPULATE(USER,'ORDERS_TAB');
+
+PL/SQL procedure successfully completed.
+
+SQL> --
+SQL> SET ECHO OFF;
+**********************************************
+Wait for IM Population
+**********************************************
+
+PL/SQL procedure successfully completed.
+
+**********************************************
+Show space usage
+**********************************************
+
+SEGMENT_NAME            Size (MB)
+-------------------- ------------
+ORDERS_TAB                  1,408
+
+
+                                                                                             BYTES NOT
+OWNER                SEGMENT_NAME                    BYTES POP STATUS       INMEMORY_SIZE    POPULATED
+-------------------- -------------------- ---------------- ------------- ---------------- ------------
+SSB                  ORDERS_TAB              1,470,988,288 COMPLETED          411,041,792            0
+
+**********************************************
+Run query 1 with In-Memory enabled
+**********************************************
+Hit enter ...
+
+
+Session altered.
+
+SQL> alter session set inmemory_query = enable;
+
+Session altered.
+
+Elapsed: 00:00:00.00
+SQL> --
+SQL> select
+  2    customer_region, customer_nation, count(distinct(order_key)) "Total Orders"
+  3  from orders_tab group by customer_region, customer_nation;
+
+CUSTOMER_REGION CUSTOMER_NATION Total Orders
+--------------- --------------- ------------
+AFRICA          ALGERIA                81488
+AFRICA          ETHIOPIA               78598
+AMERICA         BRAZIL                 78880
+AMERICA         CANADA                 78496
+AMERICA         PERU                   79220
+ASIA            SINGAPORE              79904
+EUROPE          FRANCE                 79126
+MIDDLE EAST     EGYPT                  79656
+EUROPE          UNITED KINGDOM         80006
+ASIA            VIETNAM                80420
+MIDDLE EAST     ISRAEL                 80057
+AFRICA          MOZAMBIQUE             77480
+ASIA            INDIA                  80707
+ASIA            INDONESIA              78606
+MIDDLE EAST     JORDAN                 80190
+EUROPE          GERMANY                82171
+EUROPE          ROMANIA                80216
+AFRICA          MOROCCO                79417
+AMERICA         ARGENTINA              79491
+ASIA            JAPAN                  79022
+EUROPE          BULGARIA               79377
+MIDDLE EAST     ARMENIA                79967
+AFRICA          KENYA                  81376
+MIDDLE EAST     SAUDI ARABIA           79327
+AMERICA         UNITED STATES          80297
+
+25 rows selected.
+
+Elapsed: 00:00:01.14
+SQL> --
+SQL> set echo off
+
+PLAN_TABLE_OUTPUT
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+SQL_ID  0sjdttfjccktf, child number 2
+-------------------------------------
+select   customer_region, customer_nation, count(distinct(order_key))
+"Total Orders" from orders_tab group by customer_region, customer_nation
+
+Plan hash value: 783568451
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Id  | Operation                     | Name       | Starts | E-Rows |E-Bytes|E-Temp | Cost (%CPU)| E-Time   | A-Rows |   A-Time   | Buffers | Reads  | Writes |
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT              |            |      1 |        |       |       | 56292 (100)|          |     25 |00:00:01.13 |      15 |   4619 |   4619 |
+|   1 |  HASH GROUP BY                |            |      1 |     89 |  2670 |       | 56292   (1)| 00:00:03 |     25 |00:00:01.13 |      15 |   4619 |   4619 |
+|   2 |   VIEW                        | VM_NWVW_1  |      1 |   7971K|   228M|       | 56292   (1)| 00:00:03 |   1993K|00:00:01.05 |      15 |   4619 |   4619 |
+|   3 |    HASH GROUP BY              |            |      1 |   7971K|   174M|   275M| 56292   (1)| 00:00:03 |   1993K|00:00:01.05 |      15 |   4619 |   4619 |
+|   4 |     TABLE ACCESS INMEMORY FULL| ORDERS_TAB |      1 |   7971K|   174M|       |  1887   (5)| 00:00:01 |   7774K|00:00:00.05 |      15 |      0 |      0 |
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+17 rows selected.
+
+**********************************************
+Run query 1 with In-Memory disabled
+**********************************************
+Hit enter ...
+
+SQL> alter session set inmemory_query = disable;
+
+Session altered.
+
+Elapsed: 00:00:00.00
+SQL> --
+SQL> select
+  2    customer_region, customer_nation, count(distinct(order_key)) "Total Orders"
+  3  from orders_tab group by customer_region, customer_nation;
+
+CUSTOMER_REGION CUSTOMER_NATION Total Orders
+--------------- --------------- ------------
+AFRICA          ALGERIA                81488
+AFRICA          ETHIOPIA               78598
+AMERICA         BRAZIL                 78880
+AMERICA         CANADA                 78496
+AMERICA         PERU                   79220
+ASIA            SINGAPORE              79904
+EUROPE          FRANCE                 79126
+MIDDLE EAST     EGYPT                  79656
+EUROPE          UNITED KINGDOM         80006
+ASIA            VIETNAM                80420
+MIDDLE EAST     ISRAEL                 80057
+AFRICA          MOZAMBIQUE             77480
+ASIA            INDIA                  80707
+ASIA            INDONESIA              78606
+MIDDLE EAST     JORDAN                 80190
+EUROPE          GERMANY                82171
+EUROPE          ROMANIA                80216
+AFRICA          MOROCCO                79417
+AMERICA         ARGENTINA              79491
+ASIA            JAPAN                  79022
+EUROPE          BULGARIA               79377
+MIDDLE EAST     ARMENIA                79967
+AFRICA          KENYA                  81376
+MIDDLE EAST     SAUDI ARABIA           79327
+AMERICA         UNITED STATES          80297
+
+25 rows selected.
+
+Elapsed: 00:00:01.58
+SQL> --
+SQL> set echo off
+
+PLAN_TABLE_OUTPUT
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+SQL_ID  0sjdttfjccktf, child number 3
+-------------------------------------
+select   customer_region, customer_nation, count(distinct(order_key))
+"Total Orders" from orders_tab group by customer_region, customer_nation
+
+Plan hash value: 783568451
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+| Id  | Operation            | Name       | Starts | E-Rows |E-Bytes|E-Temp | Cost (%CPU)| E-Time   | A-Rows |   A-Time   | Buffers | Reads  | Writes |
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT     |            |      1 |        |       |       |   103K(100)|          |     25 |00:00:01.57 |     177K|    182K|   5456 |
+|   1 |  HASH GROUP BY       |            |      1 |     89 |  2670 |       |   103K  (1)| 00:00:05 |     25 |00:00:01.57 |     177K|    182K|   5456 |
+|   2 |   VIEW               | VM_NWVW_1  |      1 |   7971K|   228M|       |   103K  (1)| 00:00:05 |   1993K|00:00:01.49 |     177K|    182K|   5456 |
+|   3 |    HASH GROUP BY     |            |      1 |   7971K|   174M|   275M|   103K  (1)| 00:00:05 |   1993K|00:00:01.49 |     177K|    182K|   5456 |
+|   4 |     TABLE ACCESS FULL| ORDERS_TAB |      1 |   7971K|   174M|       | 48724   (1)| 00:00:02 |   7971K|00:00:00.42 |     177K|    177K|      0 |
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+17 rows selected.
+
+**********************************************
+Run query 2 with In-Memory enabled
+**********************************************
+Hit enter ...
+
+SQL> alter session set inmemory_query = enable;
+
+Session altered.
+
+Elapsed: 00:00:00.00
+SQL> --
+SQL> select
+  2    order_key, min(order_revenue)
+  3  from   orders_summary_v
+  4  where  order_key IN (  select order_key
+  5                            from ORDERS_TAB
+  6                            where line_supplycost = (select max(line_supplycost)
+  7                                                     from  ORDERS_TAB
+  8                                                     where line_quantity > 10
+  9                                                     and order_shipmode LIKE 'SHIP%'
+ 10                                                     and order_discount between 5 and 8)
+ 11                            and order_shipmode LIKE 'SHIP%'
+ 12                            and order_discount between 5 and 8
+ 13                          )
+ 14  group by order_key;
+
+ ORDER_KEY MIN(ORDER_REVENUE)
+---------- ------------------
+    329499          466308249
+
+Elapsed: 00:00:00.02
+SQL> --
+SQL> set echo off
+
+PLAN_TABLE_OUTPUT
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+SQL_ID  183svsjkyysc4, child number 2
+-------------------------------------
+select   order_key, min(order_revenue) from   orders_summary_v where
+order_key IN (  select order_key                           from
+ORDERS_TAB                           where line_supplycost = (select
+max(line_supplycost)
+from  ORDERS_TAB
+where line_quantity > 10
+    and order_shipmode LIKE 'SHIP%'
+               and order_discount between 5 and 8)
+     and order_shipmode LIKE 'SHIP%'                           and
+order_discount between 5 and 8                         ) group by
+order_key
+
+Plan hash value: 80309288
+
+------------------------------------------------------------------------------------------------------------------------------------------
+| Id  | Operation                         | Name       | Starts | E-Rows |E-Bytes| Cost (%CPU)| E-Time   | A-Rows |   A-Time   | Buffers |
+------------------------------------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                  |            |      1 |        |       |  5880 (100)|          |      1 |00:00:00.01 |      46 |
+|   1 |  HASH GROUP BY                    |            |      1 |      1 |    19 |  5880   (9)| 00:00:01 |      1 |00:00:00.01 |      46 |
+|   2 |   VIEW                            | VM_NWVW_1  |      1 |      1 |    19 |  5880   (9)| 00:00:01 |      1 |00:00:00.01 |      46 |
+|   3 |    HASH GROUP BY                  |            |      1 |      1 |    76 |  5880   (9)| 00:00:01 |      1 |00:00:00.01 |      46 |
+|*  4 |     HASH JOIN                     |            |      1 |      1 |    76 |  3939   (9)| 00:00:01 |      3 |00:00:00.01 |      46 |
+|   5 |      JOIN FILTER CREATE           | :BF0000    |      1 |      1 |    33 |  1948   (8)| 00:00:01 |      1 |00:00:00.01 |      30 |
+|*  6 |       TABLE ACCESS INMEMORY FULL  | ORDERS_TAB |      1 |      1 |    33 |  1948   (8)| 00:00:01 |      1 |00:00:00.01 |      30 |
+|   7 |        SORT AGGREGATE             |            |      1 |      1 |    18 |            |          |      1 |00:00:00.01 |      15 |
+|*  8 |         TABLE ACCESS INMEMORY FULL| ORDERS_TAB |      1 |    575K|     9M|  1940   (8)| 00:00:01 |     15 |00:00:00.01 |      15 |
+|   9 |      JOIN FILTER USE              | :BF0000    |      1 |   7971K|   326M|  1971   (9)| 00:00:01 |      3 |00:00:00.01 |      15 |
+|* 10 |       TABLE ACCESS INMEMORY FULL  | ORDERS_TAB |      1 |   7971K|   326M|  1971   (9)| 00:00:01 |      3 |00:00:00.01 |      15 |
+------------------------------------------------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   4 - access("ORDER_KEY"="ORDER_KEY")
+   6 - inmemory(("ORDER_DISCOUNT">=5 AND "ORDER_SHIPMODE" LIKE 'SHIP%' AND "ORDER_DISCOUNT"<=8 AND "LINE_SUPPLYCOST"=))
+       filter(("ORDER_DISCOUNT">=5 AND "ORDER_SHIPMODE" LIKE 'SHIP%' AND "ORDER_DISCOUNT"<=8 AND "LINE_SUPPLYCOST"=))
+   8 - inmemory(("ORDER_DISCOUNT">=5 AND "ORDER_SHIPMODE" LIKE 'SHIP%' AND "LINE_QUANTITY">10 AND "ORDER_DISCOUNT"<=8))
+       filter(("ORDER_DISCOUNT">=5 AND "ORDER_SHIPMODE" LIKE 'SHIP%' AND "LINE_QUANTITY">10 AND "ORDER_DISCOUNT"<=8))
+  10 - inmemory(SYS_OP_BLOOM_FILTER(:BF0000,"ORDER_KEY"))
+       filter(SYS_OP_BLOOM_FILTER(:BF0000,"ORDER_KEY"))
+
+
+43 rows selected.
+
+**********************************************
+Run query 2 with In-Memory disabled
+**********************************************
+Hit enter ...
+
+SQL> alter session set inmemory_query = disable;
+
+Session altered.
+
+Elapsed: 00:00:00.00
+SQL> --
+SQL> select
+  2    order_key, min(order_revenue)
+  3  from   orders_summary_v
+  4  where  order_key IN (  select order_key
+  5                            from ORDERS_TAB
+  6                            where line_supplycost = (select max(line_supplycost)
+  7                                                     from  ORDERS_TAB
+  8                                                     where line_quantity > 10
+  9                                                     and order_shipmode LIKE 'SHIP%'
+ 10                                                     and order_discount between 5 and 8)
+ 11                            and order_shipmode LIKE 'SHIP%'
+ 12                            and order_discount between 5 and 8
+ 13                          )
+ 14  group by order_key;
+
+ ORDER_KEY MIN(ORDER_REVENUE)
+---------- ------------------
+    329499          466308249
+
+Elapsed: 00:00:01.64
+SQL> --
+SQL> set echo off
+
+PLAN_TABLE_OUTPUT
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+SQL_ID  183svsjkyysc4, child number 3
+-------------------------------------
+select   order_key, min(order_revenue) from   orders_summary_v where
+order_key IN (  select order_key                           from
+ORDERS_TAB                           where line_supplycost = (select
+max(line_supplycost)
+from  ORDERS_TAB
+where line_quantity > 10
+    and order_shipmode LIKE 'SHIP%'
+               and order_discount between 5 and 8)
+     and order_shipmode LIKE 'SHIP%'                           and
+order_discount between 5 and 8                         ) group by
+order_key
+
+Plan hash value: 2606829073
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+| Id  | Operation               | Name       | Starts | E-Rows |E-Bytes| Cost (%CPU)| E-Time   | A-Rows |   A-Time   | Buffers | Reads  |
+-----------------------------------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT        |            |      1 |        |       |   146K(100)|          |      1 |00:00:01.63 |     531K|    531K|
+|   1 |  HASH GROUP BY          |            |      1 |      1 |    19 |   146K  (1)| 00:00:06 |      1 |00:00:01.63 |     531K|    531K|
+|   2 |   VIEW                  | VM_NWVW_1  |      1 |      1 |    19 |   146K  (1)| 00:00:06 |      1 |00:00:01.63 |     531K|    531K|
+|   3 |    HASH GROUP BY        |            |      1 |      1 |    76 |   146K  (1)| 00:00:06 |      1 |00:00:01.63 |     531K|    531K|
+|*  4 |     HASH JOIN           |            |      1 |      1 |    76 | 97576   (1)| 00:00:04 |      3 |00:00:01.63 |     531K|    531K|
+|*  5 |      TABLE ACCESS FULL  | ORDERS_TAB |      1 |      1 |    33 | 48785   (1)| 00:00:02 |      1 |00:00:01.02 |     354K|    354K|
+|   6 |       SORT AGGREGATE    |            |      1 |      1 |    18 |            |          |      1 |00:00:00.52 |     177K|    177K|
+|*  7 |        TABLE ACCESS FULL| ORDERS_TAB |      1 |    575K|     9M| 48798   (1)| 00:00:02 |    422K|00:00:00.51 |     177K|    177K|
+|   8 |      TABLE ACCESS FULL  | ORDERS_TAB |      1 |   7971K|   326M| 48770   (1)| 00:00:02 |   7971K|00:00:00.52 |     177K|    177K|
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   4 - access("ORDER_KEY"="ORDER_KEY")
+   5 - filter(("ORDER_DISCOUNT">=5 AND "ORDER_SHIPMODE" LIKE 'SHIP%' AND "ORDER_DISCOUNT"<=8 AND "LINE_SUPPLYCOST"=))
+   7 - filter(("ORDER_DISCOUNT">=5 AND "ORDER_SHIPMODE" LIKE 'SHIP%' AND "LINE_QUANTITY">10 AND "ORDER_DISCOUNT"<=8))
+
+
+37 rows selected.
+
+**********************************************
+Script complete
+**********************************************
