@@ -19,16 +19,16 @@ Installation defaults to schema default tablespace
     QUOTA UNLIMITED ON <tablespace_name>;
   ````
 
-## Schema privileges needed:
+## Requires a user with the following privileges:
 
   ````
-  GRANT CREATE SESSION TO imdemo;
-  GRANT CREATE TABLE TO imdemo;
-  GRANT CREATE VIEW TO imdemo;
-  GRANT CREATE SEQUENCE TO imdemo;
-  GRANT EXECUTE ON DBMS_INMEMORY_ADMIN TO imdemo;
-  GRANT SELECT ON SYS.V_$IM_SEGMENTS TO imdemo;
-  GRANT SELECT_CATALOG_ROLE TO imdemo;
+  GRANT CREATE SESSION
+  GRANT CREATE TABLE
+  GRANT CREATE VIEW
+  GRANT CREATE SEQUENCE
+  GRANT EXECUTE ON DBMS_INMEMORY_ADMIN
+  GRANT SELECT ON SYS.V_$IM_SEGMENTS
+  GRANT SELECT_CATALOG_ROLE
   ````
 
 ## Clean up:
@@ -50,7 +50,7 @@ Installation defaults to schema default tablespace
                                                                                              BYTES NOT
 OWNER                SEGMENT_NAME                    BYTES POP STATUS       INMEMORY_SIZE    POPULATED
 -------------------- -------------------- ---------------- ------------- ---------------- ------------
-SSB                  ORDERS_TAB              1,470,988,288 COMPLETED          411,041,792            0
+IMDEMO               ORDERS_TAB              1,470,988,288 COMPLETED          411,041,792            0
 
 ````
 
