@@ -12,23 +12,23 @@
 
 ## Requires a tablespace with at least 1500MB of space
 
-Installation defaults to schema default tablespace
+An example create user statement using the USERS tablespace with a user name of IMDEMO:
 
   ````
   CREATE USER imdemo IDENTIFIED BY <passwd>
-    QUOTA UNLIMITED ON <tablespace_name>;
+    QUOTA UNLIMITED ON users;
   ````
 
 ## Requires a user with the following privileges:
 
   ````
-  GRANT CREATE SESSION
-  GRANT CREATE TABLE
-  GRANT CREATE VIEW
-  GRANT CREATE SEQUENCE
-  GRANT EXECUTE ON DBMS_INMEMORY_ADMIN
-  GRANT SELECT ON SYS.V_$IM_SEGMENTS
-  GRANT SELECT_CATALOG_ROLE
+  GRANT CREATE SESSION TO imdemo;
+  GRANT CREATE TABLE TO imdemo;
+  GRANT CREATE VIEW TO imdemo;
+  GRANT CREATE SEQUENCE TO imdemo;
+  GRANT EXECUTE ON DBMS_INMEMORY_ADMIN TO imdemo;
+  GRANT SELECT ON SYS.V_$IM_SEGMENTS TO imdemo;
+  GRANT SELECT_CATALOG_ROLE TO imdemo;
   ````
 
 ## Clean up:
@@ -44,7 +44,7 @@ Installation defaults to schema default tablespace
   DROP USER imdemo CASCADE;
   ````
 
-## ORDERS_TAB populate in the IM column store, default compression
+## ORDERS_TAB populated in the IM column store, default compression
 
 ````
                                                                                              BYTES NOT
