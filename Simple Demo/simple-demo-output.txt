@@ -1,12 +1,15 @@
-SQL> @DBIM-simple-demo.sql
+SQL> @dbim-simple-demo.sql
 **********************************************
 Database In-Memory Simple Demo - Version 1.0
 **********************************************
 **********************************************
 Create objects
 **********************************************
+drop table orders_tab purge
+           *
+ERROR at line 1:
+ORA-00942: table or view does not exist
 
-Table dropped.
 
 
 Table created.
@@ -14,8 +17,11 @@ Table created.
 
 View created.
 
+DROP SEQUENCE order_key_seq
+              *
+ERROR at line 1:
+ORA-02289: sequence does not exist
 
-Sequence dropped.
 
 
 Sequence created.
@@ -63,7 +69,7 @@ ORDERS_TAB                  1,408
                                                                                              BYTES NOT
 OWNER                SEGMENT_NAME                    BYTES POP STATUS       INMEMORY_SIZE    POPULATED
 -------------------- -------------------- ---------------- ------------- ---------------- ------------
-SSB                  ORDERS_TAB              1,470,988,288 COMPLETED          411,041,792            0
+IMDEMO               ORDERS_TAB              1,470,988,288 COMPLETED          411,041,792            0
 
 **********************************************
 Run query 1 with In-Memory enabled
