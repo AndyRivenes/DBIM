@@ -1,4 +1,4 @@
-REM DBIM_simple_demo.sql
+REM dbim_simple_demo.sql
 REM
 REM This script provides an all inclusive script to show Database
 REM In-Memory performance. It creates three objects, loads sample 
@@ -7,12 +7,12 @@ REM inmemory enabled.
 REM
 REM Requirements:
 REM
-REM   1) inmemory_size >= 500 MB
+REM   1) inmemory_size >= 600 MB
 REM
 REM   2) 1.5 GB of tablespace available
 REM
 REM   3) CREATE USER imdemo IDENTIFIED BY <passwd>
-REM        QUOTA UNLIMITED ON <tablespace_name>;
+REM        QUOTA UNLIMITED ON users;
 REM
 REM   4) Privileges: 
 REM        GRANT CREATE SESSION TO imdemo;
@@ -40,6 +40,8 @@ PROMPT **********************************************
 --
 PROMPT **********************************************
 PROMPT Create objects
+PROMPT Note: ORA errors for the drop table and 
+PROMPT       drop sequence can be ignored 
 PROMPT **********************************************
 --
 drop table orders_tab purge;
