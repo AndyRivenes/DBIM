@@ -5,7 +5,7 @@
   ````
   connect / as sysdba
 
-  alter system set inmemory_size = 500M scope=spfile;
+  alter system set inmemory_size = 600M scope=spfile;
   shutdown immediate;
   startup;
   ````
@@ -31,6 +31,31 @@ An example create user statement using the USERS tablespace with a user name of 
   GRANT SELECT_CATALOG_ROLE TO imdemo;
   ````
 
+## Space usage
+
+  ````
+  SEGMENT_NAME            Size (MB)
+  -------------------- ------------
+  ORDERS_TAB                  1,408
+  ````
+  
+## ORDERS_TAB populated in the IM column store, default compression
+  
+  ````
+                                                                                               BYTES NOT
+  OWNER                SEGMENT_NAME                    BYTES POP STATUS       INMEMORY_SIZE    POPULATED
+  -------------------- -------------------- ---------------- ------------- ---------------- ------------
+  IMDEMO               ORDERS_TAB              1,470,988,288 COMPLETED          413,007,872            0
+  ````
+
+## Sample queries
+
+Two different queries are run with and without inmemory enabled along with execution plans
+
+## Sample Output
+
+See the simple-demo-output.txt file for a sample output from running the dbim_simple_demo.sql script.
+
 ## Clean up:
 
   ````
@@ -43,21 +68,4 @@ An example create user statement using the USERS tablespace with a user name of 
   ````
   DROP USER imdemo CASCADE;
   ````
-
-## ORDERS_TAB populated in the IM column store, default compression
-
-````
-                                                                                             BYTES NOT
-OWNER                SEGMENT_NAME                    BYTES POP STATUS       INMEMORY_SIZE    POPULATED
--------------------- -------------------- ---------------- ------------- ---------------- ------------
-IMDEMO               ORDERS_TAB              1,470,988,288 COMPLETED          411,041,792            0
-
-````
-
-## Sample queries
-
-Two different queries are run with and without inmemory enabled along with execution plans
-
-## Sample Output
-
-See the simple-demo-output.txt file for a sample output from running the dbim_simple_demo.sql script.
+  
