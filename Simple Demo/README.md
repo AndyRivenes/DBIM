@@ -1,6 +1,6 @@
 # Database In-Memory Simple Demo Script
 
-## Requires IM column store to be allocated
+## Requires IM column store allocation of 600 MB
 
   ````
   connect / as sysdba
