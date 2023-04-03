@@ -69,6 +69,7 @@ BEGIN
     IF v_debug THEN
       DBMS_OUTPUT.PUT_LINE('POPULATE_WAIT return code: ' || v_rc);
     END IF;
+    --
     IF v_rc = 0 THEN
       v_done := TRUE;
     ELSIF v_rc = -1 THEN
