@@ -504,7 +504,7 @@ DECLARE
   co_pop_percent  CONSTANT NUMBER := 100;
   co_pop_timeout  CONSTANT NUMBER := 60;
   --
-  v_rc            CHAR(2);
+  v_rc            NUMBER;
   v_wait          NUMBER := 0;
   v_done          BOOLEAN := FALSE;
   --
@@ -514,14 +514,14 @@ DECLARE
   PRAGMA EXCEPTION_INIT(POP_TIMEOUT, -20010);
 BEGIN
   WHILE NOT v_done AND v_wait <= co_wait_timeout LOOP
-    select TO_CHAR(dbms_inmemory_admin.populate_wait(
-      priority=>co_priority, percentage=>co_pop_percent, timeout=>co_pop_timeout ))
+    select dbms_inmemory_admin.populate_wait(
+      priority=>co_priority, percentage=>co_pop_percent, timeout=>co_pop_timeout )
     INTO v_rc
     from dual;
     --
-    IF v_rc = '0' THEN
+    IF v_rc = 0 THEN
       v_done := TRUE;
-    ELSIF v_rc = '-1' THEN
+    ELSIF v_rc = -1 THEN
       v_wait := v_wait + 1;
     ELSE
       RAISE_APPLICATION_ERROR(-20000, 'Error populating IM column store');
