@@ -8,3 +8,7 @@ These files are basically the current LiveLabs scripts for AIM (low, medium) and
 ## DBIM Simple Demo
 
 Script to allow running a simple Database In-Memory demonstration script
+
+## POPULATE_WAIT Demo
+
+A simple demo of using the POPULATE_WAIT function to verify that objects have been populated in the IM column store.
