@@ -12,3 +12,7 @@ Script to allow running a simple Database In-Memory demonstration script
 ## POPULATE_WAIT Demo
 
 A simple demo of using the POPULATE_WAIT function to verify that objects have been populated in the IM column store.
+
+## Oracle CloudWorld 2024 Presentations
+
+LRN3329 Database In-Memory Getting Started and Best Practices with 23ai new features
